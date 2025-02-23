@@ -1,6 +1,7 @@
 from pymongo import MongoClient # type: ignore
 import requests
 import pandas as pd
+import os
 
 # Connect to MongoDB
 client = MongoClient("mongodb://localhost:27017/")
@@ -27,12 +28,21 @@ def fetch_anime_rankings():
 
 
 def save_to_mongo(df):
-    if df is not None:
-        collection.delete_many({})  # Clear old data
-        collection.insert_many(df.to_dict(orient="records"))
-        print("Data saved to MongoDB!")
-    else:
-        print("Failed to fetch data.")
+    # if df is not None:
+    #     collection.delete_many({})  # Clear old data
+    #     collection.insert_many(df.to_dict(orient="records"))
+    #     print("Data saved to MongoDB!")
+    # else:
+    #     print("Failed to fetch data.")
+    
+    mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+    client = MongoClient(mongo_uri)
+    db = client["anime_db"] 
+    collection = db["anime_rankings"]
+    
+    collection.delete_many({})  # Clear old data
+    collection.insert_many(df.to_dict(orient="records"))
+    print("Data updated in MongoDB!")
 
 if __name__ == "__main__":
     df = fetch_anime_rankings()
