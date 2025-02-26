@@ -1,15 +1,19 @@
 from pymongo import MongoClient # type: ignore
+from dotenv import load_dotenv # type: ignore
 import ssl
 import requests
 import pandas as pd
 import os
 
-# # Connect to MongoDB
+# # Connect to MongoDB in local
 # client = MongoClient("mongodb://localhost:27017/")
 # db = client["anime_db"]
 # collection = db["anime_rankings"]
 
-mongo_url = "mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB"
+load_dotenv() # Load enviornment variable from .env file
+mongo_url = os.getenv("MONGO_URI")
+if not mongo_url:
+    raise ValueError("MONGO_URI environment variable is not set.")
 client = MongoClient(mongo_url, tls=True, tlsCertificateKeyFile=None, ssl=True)
 db = client["AnimeDB"]  # Use the correct database name
 collection = db["anime_rankings"]
@@ -37,20 +41,24 @@ def fetch_anime_rankings():
 
 def save_to_mongo(df):    
     # mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-    # mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB")
-    # client = MongoClient(mongo_uri)
-    # db = client["anime_db"] 
-    # collection = db["anime_rankings"]
     
-    collection.delete_many({})  # Clear old data
-    collection.insert_many(df.to_dict(orient="records"))
-    print("Data updated in MongoDB!")
+    """Saves anime rankings DataFrame to MongoDB after clearing old data."""
+    if df is not None and not df.empty: 
+        collection.delete_many({})  # Clear old data
+        collection.insert_many(df.to_dict(orient="records"))
+        print("Data updated in MongoDB!")
+    else: 
+        print("No data to save to MongoDB.")
 
 if __name__ == "__main__":
     df = fetch_anime_rankings()
-    # print(df.head()) # Preview the data
+    
     if df is not None:
+        # print(df.head()) # Preview data befor saving
         save_to_mongo(df)
 
-    df.to_csv("anime_ranking.csv", index=False)
+        df.to_csv("anime_ranking.csv", index=False)
+    
+    else:
+        print("No data retrieved, skipping MogoDB save.")
 
