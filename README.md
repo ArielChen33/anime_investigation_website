@@ -1,6 +1,7 @@
 # Anime Investigation Website
 
 This project investigates the popularity of anime by fetching ranking data from the [Jikan API](https://jikan.moe/). It stores the data in MongoDB and provides a backend for further analysis or visualization.
+![preview_website](https://i.postimg.cc/DfHk6SFj/2025-02-26-18-27-03.png)
 
 ## Tecknique
 
