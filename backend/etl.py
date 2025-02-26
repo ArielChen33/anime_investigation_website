@@ -14,7 +14,7 @@ load_dotenv() # Load enviornment variable from .env file
 mongo_url = os.getenv("MONGO_URI")
 if not mongo_url:
     raise ValueError("MONGO_URI environment variable is not set.")
-client = MongoClient(mongo_url, tls=True, tlsCertificateKeyFile=None, ssl=True)
+client = MongoClient(mongo_url, tls=True,  tlsAllowInvalidCertificates=True)
 db = client["AnimeDB"]  # Use the correct database name
 collection = db["anime_rankings"]
 
