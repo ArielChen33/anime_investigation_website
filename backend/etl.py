@@ -1,4 +1,5 @@
 from pymongo import MongoClient # type: ignore
+import ssl
 import requests
 import pandas as pd
 import os
@@ -7,7 +8,9 @@ import os
 # client = MongoClient("mongodb://localhost:27017/")
 # db = client["anime_db"]
 # collection = db["anime_rankings"]
-client = MongoClient("mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB")
+
+mongo_url = "mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB"
+client = MongoClient(mongo_url, tls=True, tlsCertificateKeyFile=None, ssl=True)
 db = client["AnimeDB"]  # Use the correct database name
 collection = db["anime_rankings"]
 
@@ -34,10 +37,10 @@ def fetch_anime_rankings():
 
 def save_to_mongo(df):    
     # mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
-    mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB")
-    client = MongoClient(mongo_uri)
-    db = client["anime_db"] 
-    collection = db["anime_rankings"]
+    # mongo_uri = os.getenv("MONGO_URI", "mongodb+srv://wanqichen0924:anime@animedb.t7coi.mongodb.net/?retryWrites=true&w=majority&appName=AnimeDB")
+    # client = MongoClient(mongo_uri)
+    # db = client["anime_db"] 
+    # collection = db["anime_rankings"]
     
     collection.delete_many({})  # Clear old data
     collection.insert_many(df.to_dict(orient="records"))
@@ -50,3 +53,4 @@ if __name__ == "__main__":
         save_to_mongo(df)
 
     df.to_csv("anime_ranking.csv", index=False)
+
